@@ -67,15 +67,16 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params
-        const deletedPost = await Post.remove(id)
-        if(!deletedPost) {
-            return res.status(404).json({message: "The post could not be removed"})
+        const post = await Post.findById(id)
+        if(!post) {
+            res.status(404).json({message: "The post with the specified ID does not exist"})
         } else {
-            res.status(200).json(deletedPost)
+            await Post.remove(id)
+            res.status(200).json(post)
         }
 
     } catch(err) {
-        res.status(500).json({message: "The comments information could not be retrieved"})
+        res.status(500).json({message: "The post could not be removed"})
     }
 })
 
@@ -83,7 +84,7 @@ router.get('/:id/comments', async (req, res) => {
     const { id } = req.params
 
     try {
-        const comments = await Post.findCommentById(id)
+        const comments = await Post.findPostComments(id)
         if(!comments){
             res.status(404).json({
                 message: "The post with the specified ID does not exist"
